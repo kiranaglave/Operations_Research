@@ -15,7 +15,6 @@ u, px, v, py, w, pz, p,phi,q,theta,r,psi= np.array(current_state)
 # Target state (pxtarget, pytarget, pztarget are the onces only changing)
 target_state = np.zeros(12)
 
-
 # Define time span for the simulation
 time_span= [0, 10]
 
@@ -23,19 +22,13 @@ time_span= [0, 10]
 control = -K @ (current_state - target_state)
 
 
-def non_linear(current_state, target_state, control):
-    #Computes the non-linear dynamics of the drone system.
+def non_linear(control):
+    '''
+    Input:control
+    output:dx
     
-    #time: current time
-    #current_state: current state of the system [u, px, v, py, w, pz, thetadot, theta, phidot, phi, phydot, phy]
-    #target_state: target state of the system
-    #K: feedback gain matrix for the control system
-    
-   #Returns (dx).
-    
- 
-
- # Adding gravity effect to the control
+    '''
+    # Adding gravity effect to the control
     control[0] += mq * g
     
     # Thrust force
@@ -57,16 +50,14 @@ def non_linear(current_state, target_state, control):
     return dx
 
 
-def linear(current_state, A, B, control, target_state):
+def linear(current_state, A, B, control):
     """
     Computes the linear dynamics of the drone system.
     
-    time: current time
     current_state: current state of the system (x)
     A: system matrix for linear dynamics
     B: control matrix for linear dynamics
-    K: feedback gain matrix for the control system
-    target_state: target state of the system
+    Control
     
     Returns dx
     """
