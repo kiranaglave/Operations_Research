@@ -1,35 +1,9 @@
 import numpy as np
+from scipy.io import matlab
+from Constraints import mq, L, g, ms, R, mprop, mm, Jx, Jy, Jz  # Import the constants
 
 
-# Drone parameters
-mq = 0.6  # mass of the quadrotor (Kg)
-L = 0.2159  # arm length (m)
-g = 9.81  # acceleration due to gravity (m/s^2)
-ms = 0.410  # mass of the central sphere (Kg)
-R = 0.0503513  # radius of the sphere (m)
-mprop = 0.00311  # mass of the propeller (Kg)
-mm = 0.036 + mprop  # mass of the motor + propeller (Kg)
-
-# Moments of inertia
-Jx = (2 * ms * R**2) / 5 + 2 * L**2 * mm
-Jy = (2 * ms * R**2) / 5 + 2 * L**2 * mm
-Jz = (2 * ms * R**2) / 5 + 4 * L**2 * mm
-
-# Initial state
-initial_state = np.zeros(12)
-
-# Current state (u, px, v, py, w, pz, thetadot, theta, phidot, phi, phydot, phy)
-current_state = np.zeros(12) 
-
-
-# Target state (pxtarget, pytarget, pztarget, pt_target)
-target_state = np.array([0, px_target, 0, py_target, 0, pz_target, 0, 0, 0, 0, 0, 0])
-
-
-def solve_ip(time, initial_state):
-    # Placeholder for the solver implementation
-    pass
-def non_linear(time, current_state, target_state, K):
+def non_linear(current_state, target_state, K):
     #Computes the non-linear dynamics of the drone system.
     
     #time: current time
@@ -38,10 +12,7 @@ def non_linear(time, current_state, target_state, K):
     #K: feedback gain matrix for the control system
     
    #Returns the derivatives of the current state (dx).
-   
-# Extract current state variables using np.array
-    u, u_dot, v, v_dot, w, w_dot, p, p_dot, q, q_dot,r, r_dot= np.array(current_state)
-
+    
  # Control law (feedback control based on state error)
     control = -K @ (current_state - target_state)
 
@@ -63,7 +34,7 @@ def non_linear(time, current_state, target_state, K):
     r_dot = (Jx - Jy) / Jz * p * q + control[3] / Jz  # control[3] corresponds to torque τ_ψ
 
     # Pack the derivatives into a list to return
-    dx = np.array([u_dot, u, v_dot, v, w_dot, w, p_dot, p, q_dot,q, r_dot, r])
+    dx = np.array([u_dot,u,v_dot,v,w_dot,w, p_dot,p, q_dot,q,r_dot,r])
 
     return dx
 
@@ -84,6 +55,7 @@ def linear(time, current_state, A, B, K, target_state):
     
     # Control law (feedback control based on state error)
     control = -K @ (current_state - target_state)
+    # A is given in slide 35 and B
     
     # Linear state update: dx = Ax + B * control
     dx = A @ current_state + B @ control
